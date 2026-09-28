@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.CaughtLackin" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#B00020</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+
+    <style name="SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+    </style>
+</resources>

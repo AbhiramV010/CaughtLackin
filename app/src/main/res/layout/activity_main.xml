@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Get distracted and your shame squad hears about it."
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+        <TextView
+            style="@style/SectionTitle"
+            android:text="Shame squad (3 to 5 people who agreed to this)" />
+
+        <LinearLayout
+            android:id="@+id/squadList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addMember"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add squad member" />
+
+        <TextView
+            style="@style/SectionTitle"
+            android:text="Message pool (one per line, {reason} gets filled in)" />
+
+        <EditText
+            android:id="@+id/messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="4"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetMessages"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset to default messages" />
+
+        <TextView
+            style="@style/SectionTitle"
+            android:text="Settings" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/lockEndsSession"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Locking the screen ends the session (off: it counts as a strike)" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/calibration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Calibration mode: log features to CSV, never text anyone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/start"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="24dp"
+            android:text="Start studying"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBodySmall" />
+    </LinearLayout>
+</ScrollView>

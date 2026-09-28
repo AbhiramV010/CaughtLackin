@@ -25,3 +25,16 @@ replay_pid*
 
 # Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
 .kotlin/
+context.md
+.claude/
+.gitignore
+# Android / Gradle
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+captures/
+# MediaPipe models are downloaded at build time
+app/src/main/assets/*.task
