@@ -31,7 +31,7 @@ android {
         viewBinding = true
     }
 
-    // MediaPipe memory-maps model files, so they must stay uncompressed in the APK.
+    // MediaPipe mmaps models, so keep them uncompressed.
     androidResources {
         noCompress += "task"
     }

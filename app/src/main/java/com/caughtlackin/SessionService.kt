@@ -28,10 +28,7 @@ import java.util.concurrent.Executors
 import kotlin.math.acos
 import kotlin.math.sqrt
 
-/**
- * Foreground service that owns the camera, the models, the gravity sensor and the strike
- * logic, so a session keeps running after the activity stops.
- */
+/** Owns camera, models, sensor and strikes so a session outlives the activity. */
 class SessionService : LifecycleService(), SensorEventListener {
 
     private lateinit var prefs: Prefs
@@ -43,14 +40,14 @@ class SessionService : LifecycleService(), SensorEventListener {
     private var csv: PrintWriter? = null
     private var running = false
 
-    // Analyzer thread state
+    // Analyzer thread only
     private val window = FeatureWindow()
     private var lastClassify = 0L
     private var lastState: State? = null
     private var talkingSince = 0L
     private var awaySince = 0L
 
-    // Sensor (main) thread state
+    // Main (sensor) thread only
     private var baseline: FloatArray? = null
     private var liftStart = 0L
     private var pickupRaised = false
@@ -121,7 +118,7 @@ class SessionService : LifecycleService(), SensorEventListener {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    /** Analyzer thread. */
+    /** Runs on the analyzer thread. */
     private fun onFrame(now: Long) {
         if (now - lastClassify < Thresholds.CLASSIFY_INTERVAL_MS) return
         lastClassify = now
@@ -147,7 +144,7 @@ class SessionService : LifecycleService(), SensorEventListener {
         }
     }
 
-    /** Raises [v] after [target] persists for [limitMs]; clears it as soon as the state changes. */
+    /** Raises [v] once [target] lasts [limitMs]; clears it on any other state. */
     private inline fun track(
         state: State, target: State, v: Violation, reason: String, now: Long, limitMs: Long,
         since: () -> Long, setSince: (Long) -> Unit,
@@ -160,7 +157,7 @@ class SessionService : LifecycleService(), SensorEventListener {
         if (since() == 0L) setSince(now)
         if (now - since() >= limitMs && !strikes.isActive(v)) {
             strikes.raise(v, reason)
-            setSince(now) // Keep going and it strikes again after another full period.
+            setSince(now) // Strikes again after another full period.
         }
     }
 

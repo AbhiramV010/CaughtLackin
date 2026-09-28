@@ -15,7 +15,7 @@ object SessionBus {
     val countdown = MutableStateFlow<StrikeCountdown?>(null)
     val log = MutableStateFlow<List<String>>(emptyList())
 
-    /** Label written to calibration CSV rows, picked on the session screen. */
+    /** Calibration CSV label, set from the session screen. */
     @Volatile var calibrationLabel: String = "locked_in"
 
     @Volatile var strikes: StrikeManager? = null

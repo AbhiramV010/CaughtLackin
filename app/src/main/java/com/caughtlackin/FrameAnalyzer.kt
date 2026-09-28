@@ -15,10 +15,7 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlin.math.asin
 import kotlin.math.atan2
 
-/**
- * Runs the face model at ~10 fps and the pose model at ~5 fps on CameraX frames,
- * feeding [window]. [onFrame] is called after each processed frame, on the analyzer thread.
- */
+/** Feeds face (~10 fps) and pose (~5 fps) results into [window]; [onFrame] runs on the analyzer thread. */
 class FrameAnalyzer(
     context: Context,
     private val window: FeatureWindow,
@@ -80,9 +77,8 @@ class FrameAnalyzer(
     private fun faceSample(r: FaceLandmarkerResult): FaceSample {
         val m = r.facialTransformationMatrixes().orElse(null)?.firstOrNull()
             ?: return FaceSample(present = false)
-        // Column-major 4x4: r_ij = m[j * 4 + i]. The face's forward axis in camera space is
-        // column 2 = (r02, r12, r22). Looking down gives negative pitch, turning gives |yaw| > 0.
-        // If the live pitch reading has the wrong sign on the device, flip it here.
+        // Column-major 4x4; column 2 is the face's forward axis. Down = negative pitch.
+        // Flip the sign here if the device reads it backwards.
         val r02 = m[8]
         val r12 = m[9]
         val r22 = m[10]
@@ -98,7 +94,7 @@ class FrameAnalyzer(
         fun visible(i: Int) = lm[i].visibility().orElse(0f) >= Thresholds.LANDMARK_VISIBILITY
 
         val shoulderIdx = listOf(LEFT_SHOULDER, RIGHT_SHOULDER).filter(::visible)
-        // Image y grows downward; "low" means below the shoulder line, or in the lower part of the frame.
+        // Image y grows down; "low" = below the shoulders, else below 60% of the frame.
         val lowLine = if (shoulderIdx.isEmpty()) 0.6f else shoulderIdx.map { lm[it].y() }.average().toFloat()
 
         fun wrist(i: Int): Pair<Float, Float>? {

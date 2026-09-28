@@ -23,13 +23,13 @@ class Prefs(context: Context) {
             sp.edit().putString(KEY_SQUAD, arr.toString()).apply()
         }
 
-    /** One message per entry. "{reason}" is replaced with the strike reason. */
+    /** "{reason}" is replaced with the strike reason. */
     var messages: List<String>
         get() = sp.getString(KEY_MESSAGES, null)?.lines()?.map { it.trim() }?.filter { it.isNotEmpty() }
             ?: DEFAULT_MESSAGES
         set(value) = sp.edit().putString(KEY_MESSAGES, value.joinToString("\n")).apply()
 
-    /** true: locking the screen ends the session. false: it counts as a strike. */
+    /** Locking the screen ends the session if true, else counts as a strike. */
     var lockEndsSession: Boolean
         get() = sp.getBoolean(KEY_LOCK_ENDS, true)
         set(value) = sp.edit().putBoolean(KEY_LOCK_ENDS, value).apply()

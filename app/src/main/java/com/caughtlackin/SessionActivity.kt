@@ -29,7 +29,7 @@ class SessionActivity : AppCompatActivity() {
         prefs = Prefs(this)
 
         binding.stop.setOnClickListener { endSession() }
-        // Back leaves the app like any other exit; End session is the only way to stop.
+        // Back just backgrounds the app; only End session stops it.
         onBackPressedDispatcher.addCallback(this) { moveTaskToBack(true) }
         binding.labels.setOnCheckedChangeListener { _, id ->
             SessionBus.calibrationLabel = when (id) {
@@ -60,7 +60,7 @@ class SessionActivity : AppCompatActivity() {
                     }
                 }
                 launch {
-                    // The service flips this on shortly after start; close once it goes back off.
+                    // Finish once the service goes active then inactive.
                     var seenActive = false
                     SessionBus.active.collect { active ->
                         if (active) seenActive = true else if (seenActive) finish()

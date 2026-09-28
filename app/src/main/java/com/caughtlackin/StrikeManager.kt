@@ -16,17 +16,13 @@ import android.telephony.SmsManager
 enum class Violation { PICKUP, LEFT_APP, TALKING, AWAY }
 
 /**
- * Tracks active violations. The first one starts a 15 s grace countdown with a loud alert;
- * the countdown is cancelled once every violation has cleared (phone put down, back in the
- * app, back in frame). If it runs out, one random message goes to one random squad member,
- * subject to a 10 minute cooldown between texts.
- *
- * Callable from any thread.
+ * First violation starts a 15 s alarm countdown, cancelled once all violations clear.
+ * On timeout, texts a random squad member (10 min cooldown). Thread-safe.
  */
 class StrikeManager(
     private val context: Context,
     private val prefs: Prefs,
-    /** Calibration mode: log strikes but never count down or text. */
+    /** Calibration: log strikes only. */
     private val dryRun: Boolean,
 ) {
     private val main = Handler(Looper.getMainLooper())

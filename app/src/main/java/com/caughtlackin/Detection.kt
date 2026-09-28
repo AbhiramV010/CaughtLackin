@@ -10,10 +10,7 @@ enum class State(val label: String) {
     AWAY("Away"),
 }
 
-/**
- * Starting guesses from context.md. Record calibration CSVs on the real desk setup
- * (Calibration mode in the app) and tune these from the data.
- */
+/** Initial guesses; tune them from calibration CSVs recorded at the real desk. */
 object Thresholds {
     const val WINDOW_MS = 5_000L
     const val FACE_INTERVAL_MS = 100L      // ~10 fps
@@ -24,8 +21,8 @@ object Thresholds {
     const val PITCH_DOWN_DEG = -15f
     const val JAW_VAR = 0.01f
     const val WRIST_MOTION = 0.02f
-    const val FACE_FRACTION = 0.5f         // face seen in at least this share of frames
-    const val SHOULDER_FRACTION = 0.3f     // shoulders seen in at least this share of pose frames
+    const val FACE_FRACTION = 0.5f         // min share of frames with a face
+    const val SHOULDER_FRACTION = 0.3f     // min share of pose frames with shoulders
     const val LANDMARK_VISIBILITY = 0.5f
 
     const val TALKING_STRIKE_MS = 60_000L
@@ -37,7 +34,7 @@ object Thresholds {
     const val TEXT_COOLDOWN_MS = 10 * 60_000L
 }
 
-/** Features aggregated over the rolling window. pitch/yaw are NaN when no face was seen. */
+/** Rolling-window features; pitch/yaw are NaN if no face was seen. */
 data class Window(
     val pitch: Float,
     val yaw: Float,
@@ -51,9 +48,9 @@ fun classify(w: Window): State {
     val faceSeen = w.faceFraction >= Thresholds.FACE_FRACTION
     return when {
         !w.shoulders -> State.AWAY
-        // Mouth moving while facing forward is reading aloud; only flag it with the head turned.
+        // Facing forward with a moving mouth is reading aloud, so require a turned head.
         faceSeen && abs(w.yaw) > Thresholds.YAW_DEG && w.jawVar > Thresholds.JAW_VAR -> State.TALKING
-        // The face drops out when the head tilts down to write, so a lost face counts as "down".
+        // Writing often hides the face, so no face counts as looking down.
         (!faceSeen || w.pitch < Thresholds.PITCH_DOWN_DEG) && w.wristMotion > Thresholds.WRIST_MOTION -> State.WRITING
         else -> State.LOCKED_IN
     }
@@ -61,10 +58,10 @@ fun classify(w: Window): State {
 
 class FaceSample(val present: Boolean, val pitch: Float = Float.NaN, val yaw: Float = Float.NaN, val jawOpen: Float = 0f)
 
-/** Wrist positions are normalized image coords, null unless the wrist is visible and low in frame. */
+/** Wrists are normalized coords, null unless visible and low in frame. */
 class PoseSample(val shoulders: Boolean, val leftWrist: Pair<Float, Float>?, val rightWrist: Pair<Float, Float>?)
 
-/** Rolling buffer of per-frame samples. Only touched from the analyzer thread. */
+/** Rolling sample buffer; analyzer thread only. */
 class FeatureWindow(private val spanMs: Long = Thresholds.WINDOW_MS) {
     private val faces = ArrayDeque<Pair<Long, FaceSample>>()
     private val poses = ArrayDeque<Pair<Long, PoseSample>>()
@@ -84,7 +81,7 @@ class FeatureWindow(private val spanMs: Long = Thresholds.WINDOW_MS) {
         while (poses.isNotEmpty() && now - poses.first().first > spanMs) poses.removeFirst()
     }
 
-    /** Null until there is at least one pose sample to judge presence from. */
+    /** Null until a pose sample exists. */
     fun snapshot(now: Long): Window? {
         trim(now)
         if (poses.isEmpty()) return null
@@ -118,7 +115,7 @@ class FeatureWindow(private val spanMs: Long = Thresholds.WINDOW_MS) {
         return xs.sumOf { (it - mean) * (it - mean) }.div(xs.size).toFloat()
     }
 
-    /** Mean displacement per pose frame; frames where the wrist isn't low and visible count as still. */
+    /** Mean wrist displacement per frame; missing wrists count as still. */
     private fun motion(points: List<Pair<Float, Float>?>): Float {
         if (points.size < 2) return 0f
         var total = 0f

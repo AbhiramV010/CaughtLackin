@@ -23,10 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: Prefs
 
-    /**
-     * Picks one phone number through the system picker. The picker grants access to just the
-     * chosen row, so the app never reads the full contact list.
-     */
+    /** System picker exposes only the chosen number, never the full contact list. */
     private val pickPhone = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val uri = result.data?.data ?: return@registerForActivityResult
         contentResolver.query(uri, arrayOf(Phone.DISPLAY_NAME, Phone.NUMBER), null, null, null)?.use { c ->
@@ -43,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val requestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        // Notifications are optional; camera (and SMS outside calibration) are not.
+        // Only notifications are optional.
         if (missingPermissions().all { it == Manifest.permission.POST_NOTIFICATIONS }) {
             startSession()
         } else {
